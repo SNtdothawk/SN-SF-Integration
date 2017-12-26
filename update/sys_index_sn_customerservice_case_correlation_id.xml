@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_index">
+    <sys_index action="INSERT_OR_UPDATE">
+        <col_name_string>correlation_id</col_name_string>
+        <index_col_name element="correlation_id" name="task">2fd335844f332200e8d1fc728110c74a</index_col_name>
+        <logical_table_name>sn_customerservice_case</logical_table_name>
+        <sys_class_name>sys_index</sys_class_name>
+        <sys_created_by>system</sys_created_by>
+        <sys_created_on>2017-12-22 22:39:16</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>88706d04db938700cbd6361b7c9619dc</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>sn_customerservice_case</sys_name>
+        <sys_package display_value="SN SF Integration" source="x_snc_sn_sf">aba26c004f97838006cf3cb28110c719</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="SN SF Integration">aba26c004f97838006cf3cb28110c719</sys_scope>
+        <sys_update_name>sys_index_sn_customerservice_case_correlation_id</sys_update_name>
+        <sys_updated_by>system</sys_updated_by>
+        <sys_updated_on>2017-12-22 22:39:16</sys_updated_on>
+        <table display_value="Case" name="sn_customerservice_case">57602dd84f776200e8d1fc728110c7b1</table>
+        <unique_index>false</unique_index>
+    </sys_index>
+</record_update>

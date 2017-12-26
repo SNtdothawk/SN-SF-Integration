@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_snc_sn_sf.SalesForceHelper</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <name>SalesForceHelper</name>
+        <script><![CDATA[var SalesForceHelper = Class.create();
+var SalesForceToken = "";
+SalesForceHelper.prototype = {
+    initialize: function() {
+		if(this.token == ''){
+			try {
+				var loginResponse = this._getToken();
+				var loginResult = JSON.parse(loginResponse.getBody());
+				gs.info(loginResponse.getBody());
+				this._setInstance(loginResult.instance_url);
+				this._setToken(loginResult.access_token);
+			} catch (ex){
+				gs.error(ex.getMessage());
+			}
+		} else {
+			//check existing token, and if not, get token
+			try{
+				var verifyResponse = this._verifyToken();
+				var status = verifyResponse.getStatusCode();
+				if (status>=300){
+					//need to refresh token
+					try {
+						var loginResponse = this._getToken();
+						var loginResult = JSON.parse(loginResponse.getBody());
+						this._setInstance(loginResult.instance_url);
+						this._setToken(loginResult.access_token);
+					} catch (ex){
+						gs.error(ex.getMessage());
+					}
+				}
+				gs.info(verifyResponse.getBody());
+			} catch (ex){
+				gs.error(ex.getMessage());
+			}
+			
+		}
+    },
+	_setToken: function(token){
+		this.token = token;
+		gs.setProperty('x_snc_sn_sf.salesforce.token',token);
+	},
+	_setInstance: function(instance){
+		this.instance = instance;
+		gs.setProperty('x_snc_sn_sf.salesforce.instance', instance);
+	},
+	_verifyToken: function(){
+		var req = new sn_ws.RESTMessageV2();
+		req.setHttpMethod("get");
+		req.setEndpoint("https://login.salesforce.com/services/oauth2/userinfo");
+		req.setHttpTimeout(10000); //In milliseconds. Wait at most 10 seconds for response from http request.
+		req.setRequestHeader('Content-Type','application/json');
+		req.setRequestHeader('Authorization','Bearer ' + this.token);
+		var response = req.execute();
+		gs.info('Status: [' + response.getStatusCode() + '] ' + req.getEndpoint());
+		return response;	
+	},
+	_getToken: function(){
+		var req = new sn_ws.RESTMessageV2();
+		req.setHttpMethod("post");
+		req.setEndpoint("https://login.salesforce.com/services/oauth2/token");
+		req.setHttpTimeout(10000); //In milliseconds. Wait at most 10 seconds for response from http request.
+		req.setQueryParameter('grant_type','password');
+		req.setQueryParameter('client_id',this.client_id);
+		req.setQueryParameter('client_secret',this.client_secret);
+		req.setQueryParameter('redirect_url','https://empjburman.service-now.com/oauth_redirect.do');
+		req.setQueryParameter('username',this.username);
+		req.setQueryParameter('password',this.password);
+		var response = req.execute(); //Might throw exception if http connection timed out or some issue with sending request itself because of encryption/decryption of password.
+		gs.info('Status: [' + response.getStatusCode() + '] ' + req.getEndpoint());
+		return response;			
+	},
+	getObject: function(sObject, id){
+		//https://{{instance_id}}.salesforce.com/services/data/v20.0/sobjects/{{sObject}}/{{id}}
+		var req = new sn_ws.RESTMessageV2();
+		req.setHttpMethod("get");
+		req.setEndpoint(this.instance + '/services/data/v20.0/sobjects/' + sObject + '/' + id);
+		req.setHttpTimeout(10000); //In milliseconds. Wait at most 10 seconds for response from http request.
+		req.setRequestHeader('Content-Type','application/json');
+		req.setRequestHeader('Authorization','Bearer ' + this.token);
+		
+		var response = req.execute(); //Might throw exception if http connection timed out or some issue with sending request itself because of encryption/decryption of password.
+		gs.info('Status: [' + response.getStatusCode() + '] ' + req.getEndpoint());
+		return response;
+	},
+	createObject: function(sObject, jsonObject){
+		//gs.info('*****TEST:' + JSON.stringify(jsonObject))
+		//https://{{instance_id}}.salesforce.com/services/data/v20.0/sobjects/{{sObject}}
+		var req = new sn_ws.RESTMessageV2();
+		req.setHttpMethod("post");
+		req.setEndpoint(this.instance + '/services/data/v20.0/sobjects/' + sObject);
+		req.setHttpTimeout(10000); //In milliseconds. Wait at most 10 seconds for response from http request.
+		req.setRequestHeader('Content-Type','application/json');
+		req.setRequestHeader('Authorization','Bearer ' + this.token);
+		req.setRequestBody(JSON.stringify(jsonObject));
+		
+		var response = req.execute(); //Might throw exception if http connection timed out or some issue with sending request itself because of encryption/decryption of password.
+		gs.info('Status: [' + response.getStatusCode() + '] ' + req.getEndpoint());
+		return response;
+	},
+	updateObject: function(sObject,id,jsonObject){
+		//https://{{instance_id}}.salesforce.com/services/data/v20.0/sobjects/{{sObject}}
+		var req = new sn_ws.RESTMessageV2();
+		req.setHttpMethod("patch");
+		req.setEndpoint(this.instance + '/services/data/v20.0/sobjects/' + sObject + '/' + id);
+		req.setHttpTimeout(10000); //In milliseconds. Wait at most 10 seconds for response from http request.
+		req.setRequestHeader('Content-Type','application/json');
+		req.setRequestHeader('Authorization','Bearer ' + this.token);
+		req.setRequestBody(JSON.stringify(jsonObject));
+		
+		var response = req.execute(); //Might throw exception if http connection timed out or some issue with sending request itself because of encryption/decryption of password.
+		gs.info('Status: [' + response.getStatusCode() + '] ' + req.getEndpoint());
+		return response;
+	},
+    type: 'SalesForceHelper',
+	instance: gs.getProperty('x_snc_sn_sf.salesforce.instance'),
+	token: gs.getProperty('x_snc_sn_sf.salesforce.token'),
+	username: gs.getProperty('x_snc_sn_sf.salesforce.username'),
+	password: gs.getProperty('x_snc_sn_sf.salesforce.password'),
+	client_id: gs.getProperty('x_snc_sn_sf.salesforce.client_id'),
+	client_secret: gs.getProperty('x_snc_sn_sf.salesforce.client_secret'),
+};
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2017-12-22 22:50:21</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>22b1ad084f5b838006cf3cb28110c708</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>SalesForceHelper</sys_name>
+        <sys_package display_value="SN SF Integration" source="x_snc_sn_sf">aba26c004f97838006cf3cb28110c719</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="SN SF Integration">aba26c004f97838006cf3cb28110c719</sys_scope>
+        <sys_update_name>sys_script_include_22b1ad084f5b838006cf3cb28110c708</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2017-12-26 15:39:14</sys_updated_on>
+    </sys_script_include>
+</record_update>

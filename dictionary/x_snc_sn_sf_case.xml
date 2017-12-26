@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+    <element extends="sys_import_set_row" label="SF Case" max_length="40" name="x_snc_sn_sf_case" type="collection">
+        <element attributes="import_attribute_name=account_name,edge_encryption_enabled=true" label="Account Name" max_length="40" name="account_name" type="string"/>
+        <element attributes="import_attribute_name=case_number,edge_encryption_enabled=true" label="Case Number" max_length="40" name="case_number" type="string"/>
+        <element attributes="import_attribute_name=case_reason,edge_encryption_enabled=true" label="Case Reason" max_length="40" name="case_reason" type="string"/>
+        <element attributes="import_attribute_name=contact_name,edge_encryption_enabled=true" label="Contact Name" max_length="40" name="contact_name" type="string"/>
+        <element attributes="import_attribute_name=description,edge_encryption_enabled=true" label="Description" max_length="4000" name="description" type="string"/>
+        <element attributes="import_attribute_name=origin,edge_encryption_enabled=true" label="Origin" max_length="4000" name="origin" type="string"/>
+        <element attributes="import_attribute_name=priority,edge_encryption_enabled=true" label="Priority" max_length="40" name="priority" type="string"/>
+        <element attributes="import_attribute_name=status,edge_encryption_enabled=true" label="Status" max_length="40" name="status" type="string"/>
+        <element attributes="import_attribute_name=subject,edge_encryption_enabled=true" label="Subject" max_length="1000" name="subject" type="string"/>
+    </element>
+</database>
